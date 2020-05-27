@@ -2,6 +2,8 @@
 
 Documentation: work in progress...
 
+PyPI: https://pypi.org/project/ecuframework/
+
 Example:
 ```python
 from enum import Enum
