@@ -1,1 +1,3 @@
-# ecuframework
+# ECUframework
+
+Documentation: work in progress...
