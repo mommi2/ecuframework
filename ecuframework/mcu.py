@@ -108,7 +108,7 @@ class McuPattern:
 
     """
     The McuPattern object is used to store the decorated methods in the MCU.
-    If we want to use this scheme we need to initialize it in the MCU class
+    If we want to use this scheme we need to initialize it as a class attribute in the inherited MCU
     """
 
     def __init__(self):
