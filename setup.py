@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="ecuframework",
-    version="0.0.2",
+    version="0.0.3",
     author="Tommaso Viciani",
     author_email="vicianitommaso17@gmail.com",
     description="The ECU framework is a project that wants to simplify writing for Raspberry applications",
