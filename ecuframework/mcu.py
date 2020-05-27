@@ -2,7 +2,7 @@ import threading
 import logging
 import queue
 
-from src.util import looped
+from ecuframework.util import looped
 
 
 class Receiver:
