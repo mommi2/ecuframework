@@ -21,7 +21,7 @@ class Receiver:
     def get(self, job):
         """
         It obtains the sender's job passed to it as input and sends it to the recipient receiver
-        :param job: work assigned by the sender
+        :param job: assigned by the sender
         :return: None
         """
         self.on_receiver(self.mcu_instance, job)
@@ -30,10 +30,10 @@ class Receiver:
 class McuController:
 
     """
-    It is the class that manages all mcu entirely
+    It is the class that manages all MCU entirely
     """
 
-    # Stores the MCU pattern. Through this access is made to methods decorated with the support of Pattern objects
+    # Stores the MCU pattern. Through this access is made to methods decorated with the support of McuPattern objects
     _pattern = {}
 
     # Instance of the MCU
@@ -47,7 +47,7 @@ class McuController:
 
     def __init__(self):
         # It is the queue where the jobs produced by the modules will be paid.
-        # Thanks to it, MCU can adequately distribute the works to the right recipients
+        # Thanks to it, MCU can adequately distribute the jobs to the right recipients
         self.shared_queue = queue.PriorityQueue()
 
     def get_modules(self):
@@ -137,6 +137,7 @@ class McuPattern:
 class Mcu(threading.Thread):
 
     """
+    MCU (Modules Central Unit)
     It is the main object that manages the communication between the modules.
     It is very important because it gives a common base to all processes
     by offering the shared queue administered by the McuController
