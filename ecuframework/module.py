@@ -45,7 +45,7 @@ class ModuleController:
 
     def run(self):
         if self._module_instance is None:
-            raise AssertionError('L\'istanza del modulo è None')
+            raise AssertionError('The module instance is none')
 
         if self._pattern['setup']:
             self._pattern['setup'](self._module_instance)

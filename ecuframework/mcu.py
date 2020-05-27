@@ -53,7 +53,7 @@ class McuController:
 
     def run(self):
         if self._mcu_instance is None:
-            raise AssertionError('l\'instanza Mcu è None')
+            raise AssertionError('The Mcu instance is None')
 
         looped(self._processor, daemon=False)
 
@@ -91,10 +91,8 @@ class Mcu(threading.Thread):
         self.controller = McuController()
 
     def register_modules(self, modules):
-        # Rimuovo i duplicati se sono presenti
         candidate_modules = list(dict.fromkeys(modules))
 
-        # Controllo se i moduli passeti in input sono già stati registrati
         if all(module in self.controller.get_modules() for module in candidate_modules):
             raise AssertionError('The modules have already been registered')
 
