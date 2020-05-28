@@ -2,9 +2,13 @@
 
 Documentation: work in progress...
 
+## Installation
 PyPI: https://pypi.org/project/ecuframework/
+    
+    pip install ecuframework
 
-Example:
+
+## Example
 ```python
 from enum import Enum
 
