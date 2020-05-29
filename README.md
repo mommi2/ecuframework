@@ -1,9 +1,9 @@
 # ECUframework
 
-**ECUframework** (*Electronic Central Unit*) was born with the intent to simplify and speed up the writing of the code of IoT applications, making the developer avoid tedious and repetitive operations. It offers a solid and consolidated structure that lays the foundation for your application.
-The goal of the framework is to bring as many people as possible to the world of IoT making the writing of an application accessible, legible, and fun.
+**ECUframework** (*Electronic Central Unit*) was born with the intent to simplify and speed up the process of writing code of IoT applications, making the developer avoid tedious and repetitive operations. It offer a solid and consolidated structure that lays the foundation for your application.
+The goal of the framework is to introduce as many people as possible to the world of IoT making the writing of an application accessible, legible, and fun.
 
-For the specific functioning of the ECUframework consult the wiki
+For further information about ECUframework read the wiki
 
 ## Installation
 PyPI: https://pypi.org/project/ecuframework/
