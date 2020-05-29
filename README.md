@@ -76,7 +76,7 @@ class Module1(Module):
     def timer1(self):
         print(f'{self.name}: send job from timer1')
         self.controller.send_new_job(
-            Job(data={'x': 'module1'}, goal=JobGoal.GOAL1, producer=self.name, target=ModuleType.MODULE2)
+            Job(data={'x': 'module1'}, goal=JobGoal.GOAL1, producer=self.name, target=ModuleType.MODULE2))
     
     """
     The method decorated with @main_loop() is the subprocess that continues to run indefinitely until the module process 
