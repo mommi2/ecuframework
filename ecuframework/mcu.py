@@ -93,16 +93,15 @@ class Mcu(threading.Thread):
         def receiver(self):
             return self._receiver
 
-        def get_module_target(self, type_target, function=None):
+        def get_module_target(self, job_target, function=None):
             """
             It is the method that obtains the recipient of a particular module based on the basic rule,
             that is, the search based on the type of module
             :param function:
-            :param type_target: is the type of the recipient module associated with a particular job
+            :param job_target: is the type of the recipient module associated with a particular job
             :return: recipient form if it exists, otherwise it returns None
             """
-
-            filtered = list(filter(function if function else lambda module: module.module_type == type_target, self._modules))
+            filtered = list(filter(function if function else lambda module: module.tag == job_target, self._modules))
             return filtered[0] if len(filtered) > 0 else None
 
         def bind(self, mcu_instance):
@@ -135,11 +134,12 @@ class Mcu(threading.Thread):
 
             looped(self._processor, daemon=False)
 
-    def __init__(self, instance, name):
+    def __init__(self, instance, tag):
         # Call to the constructor of the Thread class.
         # By default the Mcu process is not a thread daemon
-        super().__init__(name=name, daemon=False)
-        self.logger = logging.getLogger(name)
+        super().__init__(name=f'Mcu[{tag}]', daemon=False)
+        self.tag = tag
+        self.logger = logging.getLogger(tag)
         self.controller = self._Controller()
         self.controller.bind(instance)
 

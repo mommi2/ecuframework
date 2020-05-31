@@ -81,10 +81,7 @@ class Module(threading.Thread):
 
         def __init__(self):
             # It is the queue that contains all the jobs sent by other modules through MCU
-            self._queue = queue.PriorityQueue()
-
-        def put_job(self, job):
-            self._queue.put(job)
+            self.queue = queue.PriorityQueue()
 
         def register_receiver(self, receiver_mcu):
             self._receiver_mcu = receiver_mcu
@@ -124,10 +121,10 @@ class Module(threading.Thread):
             Prepare returns the next job from the queue to the method decorated with @on_incoming_data()
             :return: None
             """
-            job = self._queue.get()
+            job = self.queue.get()
             if job is not None:
                 self._pattern['on_incoming_data'](self._module_instance, job)
-            self._queue.task_done()
+            self.queue.task_done()
 
         def run(self):
             """
@@ -152,12 +149,12 @@ class Module(threading.Thread):
             if self._pattern['main_loop']:
                 looped(self._pattern['main_loop'], seconds=1, self=self._module_instance)
 
-    def __init__(self, instance, name, module_type):
+    def __init__(self, instance, tag):
         # Call to the constructor of the Thread class.
         # By default the Mcu process is not a thread daemon
-        super().__init__(name=name, daemon=False)
-        self.module_type = module_type
-        self.logger = logging.getLogger(name)
+        super().__init__(name=f'Module[{tag}]', daemon=False)
+        self.tag = tag
+        self.logger = logging.getLogger(tag)
         self.controller = self._Controller()
         self.controller.bind(instance)
 

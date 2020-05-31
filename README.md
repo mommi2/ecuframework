@@ -163,7 +163,7 @@ class MyMcu(Mcu):
     def __init__(self):
         # Call to the constructor of the MCU class. As arguments, it accepts the name of the MCU that we are going 
         # to initialize. Always put on top of the code
-        super().__init__(name=self.name)
+        super().__init__(tag=self.name)
 
         # Always make sure to call this method after each call to the MCU class constructor.
         # Record the instance of our MCU and the pattern
