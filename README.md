@@ -75,7 +75,7 @@ class Module1(Module):
     @mp.timer(name='timer1', interval=5)
     def timer1(self):
         print(f'{self.name}: send job from timer1')
-        self.controller.send_new_job(
+        self.controller.send_job(
             Job(data={'x': 'module1'}, goal=JobGoal.GOAL1, producer=self.name, target=ModuleType.MODULE2))
     
     """
@@ -141,7 +141,7 @@ class Module2(Module):
     @mp.timer(name='timer2', interval=8)
     def timer1(self):
         print(f'{self.name}: send job from timer2')
-        self.controller.send_new_job(
+        self.controller.send_job(
             Job(data={'x': 2}, goal=JobGoal.GOAL2, producer=self.name, target=ModuleType.MODULE1))
     
     """
