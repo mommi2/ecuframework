@@ -8,7 +8,7 @@ setuptools.setup(
     version="0.0.3",
     author="Tommaso Viciani",
     author_email="vicianitommaso17@gmail.com",
-    description="The ECU framework is a project that wants to simplify writing for Raspberry applications",
+    description="Python framework for IoT applications",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/tommasoviciani/ecuframework.git",
