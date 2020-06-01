@@ -76,7 +76,7 @@ class Module1(Module):
     def timer1(self):
         print(f'{self.name}: send job from timer1')
         self.controller.send_job(
-            Job(data={'x': 'module1'}, goal=JobGoal.GOAL1, producer=self.name, target=ModuleType.MODULE2))
+            Job(data={'x': 'module1'}, goal=JobGoal.GOAL1, producer=self.name, recipient=ModuleType.MODULE2))
     
     """
     The method decorated with @main_loop() is the subprocess that continues to run indefinitely until the module process 
@@ -142,7 +142,7 @@ class Module2(Module):
     def timer1(self):
         print(f'{self.name}: send job from timer2')
         self.controller.send_job(
-            Job(data={'x': 2}, goal=JobGoal.GOAL2, producer=self.name, target=ModuleType.MODULE1))
+            Job(data={'x': 2}, goal=JobGoal.GOAL2, producer=self.name, recipient=ModuleType.MODULE1))
     
     """
     The method decorated with @solve() defines how the module should behave when a given job with the usual JobGoal passed 
@@ -185,7 +185,7 @@ class MyMcu(Mcu):
     @mp.assigning_job()
     def assigning_job(self, job):
         # Here the recipient module is obtained to which the job in question must be assigned
-        module_target = self.controller.get_module_target(job.target)
+        module_target = self.controller.get_recipient_module(job.target)
 
         module_target.controller.put_job(job) if module_target else print(
             f'The {job.target} destination of the job {job.goal} is unreachable')

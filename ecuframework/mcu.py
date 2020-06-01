@@ -97,15 +97,14 @@ class Mcu(threading.Thread):
         def receiver(self):
             return self._receiver
 
-        def get_module_target(self, job_target, function=None):
+        def get_recipient_module(self, function):
             """
             It is the method that obtains the recipient of a particular module based on the basic rule,
             that is, the search based on the type of module
-            :param function:
-            :param job_target: is the type of the recipient module associated with a particular job
-            :return: recipient form if it exists, otherwise it returns None
+            :param function: rule for searching the module
+            :return: recipient module if it exists, otherwise it returns None
             """
-            filtered = list(filter(function if function else lambda module: module.tag == job_target, self._modules))
+            filtered = list(filter(function, self._modules))
             return filtered[0] if len(filtered) > 0 else None
 
         def register_pattern(self, mcu_pattern):
