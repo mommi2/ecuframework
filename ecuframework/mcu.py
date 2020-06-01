@@ -79,10 +79,14 @@ class Mcu(threading.Thread):
         # Is the list of modules currently registered on the MCU
         _modules = []
 
-        def __init__(self):
-            # It is the queue where the jobs produced by the modules will be paid.
-            # Thanks to it, MCU can adequately distribute the jobs to the right recipients
-            self.shared_queue = queue.PriorityQueue()
+        def __init__(self, mcu_instance):
+            self._mcu_instance = mcu_instance
+
+        def get_pattern(self):
+            return self._pattern
+
+        def get_mcu_instance(self):
+            return self._mcu_instance
 
         def add_module(self, module):
             self._modules.append(module)
@@ -104,35 +108,10 @@ class Mcu(threading.Thread):
             filtered = list(filter(function if function else lambda module: module.tag == job_target, self._modules))
             return filtered[0] if len(filtered) > 0 else None
 
-        def bind(self, mcu_instance):
-            self._mcu_instance = mcu_instance
-
         def register_pattern(self, mcu_pattern):
             on_receiver = mcu_pattern.__dict__['_handler_functions'].pop('on_receiver')
             self._receiver = Receiver(self._mcu_instance, on_receiver)
             self._pattern = mcu_pattern.__dict__['_handler_functions']
-
-        def _processor(self):
-            """
-            It is the process that obtains jobs from the MCU queue and
-            calls the method decorated with @assigning_job to assign jobs to the modules
-            :return: None
-            """
-            job = self.shared_queue.get()
-            if self._pattern['assigning_job']:
-                self._pattern['assigning_job'](self._mcu_instance, job)
-            self.shared_queue.task_done()
-
-        def run(self):
-            """
-            It is the method that starts the whole mcu.
-            Here the various processes necessary for correct operation are started
-            :return: None
-            """
-            if self._mcu_instance is None:
-                raise AssertionError('The Mcu instance is None')
-
-            looped(self._processor, daemon=False)
 
     def __init__(self, instance, tag):
         # Call to the constructor of the Thread class.
@@ -140,8 +119,8 @@ class Mcu(threading.Thread):
         super().__init__(name=f'Mcu[{tag}]', daemon=False)
         self.tag = tag
         self.logger = logging.getLogger(tag)
-        self.controller = self._Controller()
-        self.controller.bind(instance)
+        self.controller = self._Controller(mcu_instance=instance)
+        self.shared_queue = queue.PriorityQueue()
 
     def register_modules(self, modules):
         candidate_modules = list(dict.fromkeys(modules))
@@ -159,7 +138,23 @@ class Mcu(threading.Thread):
             self.logger.warning('No module to start')
         [module.start() for module in self.controller.modules()]
 
+    def _processor(self):
+        """
+        It is the process that obtains jobs from the MCU queue and
+        calls the method decorated with @assigning_job to assign jobs to the modules
+        :return: None
+        """
+        job = self.shared_queue.get()
+        if self.controller.get_pattern()['assigning_job']:
+            self.controller.get_pattern()['assigning_job'](self.controller.get_mcu_instance(), job)
+        self.shared_queue.task_done()
+
     def run(self):
         self.logger.info(f'Modules starting')
-        self.controller.run()
+
+        if self.controller.get_mcu_instance() is None:
+            raise AssertionError('The Mcu instance is None')
+
+        looped(self._processor, daemon=False)
+
         self._start_modules()

@@ -42,9 +42,9 @@ class Module(threading.Thread):
 
             return decorator
 
-        def main_loop(self):
+        def main_loop(self, interval=None):
             def decorator(f):
-                self._handler_functions['main_loop'] = f
+                self._handler_functions['main_loop'] = {'interval': interval, 'function': f}
                 return f
 
             return decorator
@@ -79,18 +79,20 @@ class Module(threading.Thread):
         # Instance of the Module
         _module_instance = None
 
-        def __init__(self):
-            # It is the queue that contains all the jobs sent by other modules through MCU
-            self.queue = queue.PriorityQueue()
+        def __init__(self, module_instance):
+            self._module_instance = module_instance
+
+        def get_pattern(self):
+            return self._pattern
+
+        def get_module_instance(self):
+            return self._module_instance
 
         def register_receiver(self, receiver_mcu):
             self._receiver_mcu = receiver_mcu
 
         def register_pattern(self, module_pattern):
             self._pattern = module_pattern.__dict__['_handler_functions']
-
-        def bind(self, module_instance):
-            self._module_instance = module_instance
 
         def send_job(self, job):
             """
@@ -116,47 +118,40 @@ class Module(threading.Thread):
             except AttributeError as e:
                 print(e)
 
-        def _inner_on_incoming_data(self):
-            """
-            Prepare returns the next job from the queue to the method decorated with @on_incoming_data()
-            :return: None
-            """
-            job = self.queue.get()
-            if job is not None:
-                self._pattern['on_incoming_data'](self._module_instance, job)
-            self.queue.task_done()
-
-        def run(self):
-            """
-            It is the method that starts the whole Module.
-            Here the various processes necessary for correct operation are started.
-            The first to be performed is the setup method.
-            Then the on_incoming_data and timers threads are started. Finally the main_loop thread is created
-            :return: None
-            """
-            if self._module_instance is None:
-                raise AssertionError('The module instance is None')
-
-            if self._pattern['setup']:
-                self._pattern['setup'](self._module_instance)
-            if self._pattern['on_incoming_data']:
-                looped(self._inner_on_incoming_data)
-            if self._pattern['timers']:
-                for timer_name in self._pattern['timers']:
-                    function = self._pattern['timers'][timer_name]['function']
-                    interval = self._pattern['timers'][timer_name]['interval']
-                    looped(function, interval, self=self._module_instance)
-            if self._pattern['main_loop']:
-                looped(self._pattern['main_loop'], seconds=1, self=self._module_instance)
-
     def __init__(self, instance, tag):
         # Call to the constructor of the Thread class.
         # By default the Mcu process is not a thread daemon
         super().__init__(name=f'Module[{tag}]', daemon=False)
         self.tag = tag
         self.logger = logging.getLogger(tag)
-        self.controller = self._Controller()
-        self.controller.bind(instance)
+        self.controller = self._Controller(module_instance=instance)
+        self.queue = queue.PriorityQueue()
+
+    def _inner_on_incoming_data(self):
+        job = self.queue.get()
+        if job is not None:
+            self.controller.get_pattern()['on_incoming_data'](self.controller.get_module_instance(), job)
+        self.queue.task_done()
 
     def run(self):
-        self.controller.run()
+        module_instance = self.controller.get_module_instance()
+        pattern = self.controller.get_pattern()
+
+        if module_instance is None:
+            raise AssertionError('The module instance is None')
+
+        if not pattern:
+            raise AssertionError('The pattern of module is empty')
+
+        if pattern['setup']:
+            pattern['setup'](module_instance)
+        if pattern['on_incoming_data']:
+            looped(self._inner_on_incoming_data)
+        if pattern['timers']:
+            for timer_name in pattern['timers']:
+                function = pattern['timers'][timer_name]['function']
+                interval = pattern['timers'][timer_name]['interval']
+                looped(function, interval, self=module_instance)
+        if pattern['main_loop']:
+            looped(pattern['main_loop']['function'], seconds=pattern['main_loop']['interval'],
+                   self=module_instance)
